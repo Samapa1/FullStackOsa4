@@ -1,0 +1,11 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imx1bHVoIiwiaWQiOiI2NjVkYWJkMTRlYWY5YzQzMWYyY2YzNDQiLCJpYXQiOjE3MTc1MTIxMDF9.O95w0cepA2kCSkGNfvx2yYw6kgAr-hgU-bKvrYH2sGM
+
+{"title": "Mathematics2",
+ "author": "SP",
+ "url": "http://localhost:3003/api/blogs/databases4",
+ "likes": 0,
+ "userId": "665dabd14eaf9c431f2cf344"
+}
+
