@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 
 const errorHandler = (error, request, response, next) => {
   console.log("error handler called")
-  console.log(error.message)
+  console.log(error.name)
     if (error.name === 'CastError') {
       return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {
@@ -27,10 +27,11 @@ const errorHandler = (error, request, response, next) => {
 
   const userExtractor = async (request, response, next) => {
     const body = request.body
-    console.log(request.token)
+    if (!request.token) {
+      return response.status(401).json({error: 'token invalid'})
+    }
     const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    console.log(JSON.stringify(decodedToken))
-    console.log(decodedToken)
+
     if (!decodedToken.id) {
       return response.status(401).json({ error: 'token invalid' })
     }

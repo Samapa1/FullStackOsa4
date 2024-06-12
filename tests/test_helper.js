@@ -13,6 +13,7 @@ const testBlogs = [
       likes: 7,
       __v: 0
     },
+
     {
       _id: "5a422aa71b54a676234d17f8",
       title: "Go To Statement Considered Harmful",
@@ -60,7 +61,7 @@ const blogsInDatabase = async () => {
 
 const usersInDatabase = async () => {
   const users = await User.find({})
-  console.log(JSON.stringify(users.map(user => user.toJSON())))
+  // console.log(JSON.stringify(users.map(user => user.toJSON())))
   return users.map(user => user.toJSON())
 }
 

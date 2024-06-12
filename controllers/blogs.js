@@ -14,7 +14,7 @@ const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1, id:1 })
-  console.log(JSON.stringify(blogs))
+  // console.log(JSON.stringify(blogs))
   response.json(blogs)
 })
 
@@ -76,14 +76,17 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
   } 
 })
 
-blogsRouter.put('/:id', async (request, response) => {
+blogsRouter.put('/:id',  middleware.userExtractor, async (request, response) => {
+
   const body = request.body
+  const user = request.user
 
   const blog = ({
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: typeof body.likes!== "undefined" ? body.likes : 0
+    likes: typeof body.likes!== "undefined" ? body.likes : 0,
+    user: user._id
   })
 
   const updatedBlog= await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })

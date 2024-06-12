@@ -19,34 +19,47 @@ beforeEach(async () => {
   const passwordHash = await bcrypt.hash('sekret', 10)
   const user = new User({ username: 'ellap', passwordHash })
   await user.save()
+  const usersinDb = await helper.usersInDatabase()
+  const savedUser = usersinDb[0]
+  const userId = {user: savedUser.id.toString()}
+  // console.log(userId)
+  // console.log(savedUser.id.toString())
 
   await Blog.deleteMany({})
-  let blogObject = new Blog(helper.testBlogs[0])
-  await blogObject.save()
-  blogObject = new Blog(helper.testBlogs[1])
-  await blogObject.save()
-  blogObject = new Blog(helper.testBlogs[2])
-  await blogObject.save()
+  let blogData1 = {...helper.testBlogs[0], ...userId}
+  let blogObject1 = new Blog(blogData1)
+  await blogObject1.save()
+  let blogData2 = {...helper.testBlogs[1], ...userId}
+  let blogObject2 = new Blog(blogData2)
+  await blogObject2.save()
+  let blogData3 = {...helper.testBlogs[2], ...userId}
+  let blogObject3 = new Blog(blogData3)
+  await blogObject3.save()
+  // let blogObject = new Blog({...helper.testBlogs[0], ...savedUser})
+  // console.log(blogObject)
+  // await blogObject.save()
+  // blogObject = new Blog(helper.testBlogs[1])
+  // await blogObject.save()
+  // blogObject = new Blog(helper.testBlogs[2])
+  // await blogObject.save()
 })
 
 const authenticateUser =  async (user) => {
-  console.log(user)
+
     const userForToken = {
         username: user.username,
         id: user.id,
       }
     
     const token = jwt.sign(userForToken, process.env.SECRET)
-    console.log(token)
 
-    if (!token) {
-      console.log("virhe")
-      response.status(401).end()
-    }
-    else {
-      console.log(token)
+
+    // if (!token) {
+    //   response.status(401).end()
+    // }
+    // else {
       return (`Bearer ${token}`)
-    }
+    // }
 }
 
 // before(async () => {
@@ -93,9 +106,7 @@ test('blogs identified with id instead of _id', async () => {
 test('a new blog can be added ', async () => {
   const usersinDb = await helper.usersInDatabase()
   const user = usersinDb[0]
-  console.log("heihei")
-  console.log(user)
-
+  
     const newBlog = {
         title: "Type wars",
         author: "Robert C. Martin",
@@ -123,15 +134,48 @@ test('a new blog can be added ', async () => {
     assert(contents.includes('Type wars'))
   })
 
+test('a new blog can not be added without token', async () => {
+  const user = {username: "Otto", id: "12121212"}
+
+    const newBlog = {
+        title: "Type wars",
+        author: "Robert C. Martin",
+        url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+        likes: 2,
+        userId: user.id
+    }
+
+    // const authenticatedUser = await authenticateUser(user)
+
+    await api
+      .post('/api/blogs')
+      // .set({'Authorization':authenticatedUser}) 
+      .send(newBlog)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+      
+  
+    const response = await api.get('/api/blogs')
+  
+    assert.strictEqual(response.body.length, helper.testBlogs.length)
+  })
+
 test('if likes is not defined, it will have value of 0', async () => {
+  const usersinDb = await helper.usersInDatabase()
+  const user = usersinDb[0]
+
   const newBlog = {
     title: "TDD harms architecture",
     author: "Robert C. Martin",
     url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
+    userId: user.id
 }
+
+  const authenticatedUser = await authenticateUser(user)
 
   await api
     .post('/api/blogs')
+    .set({'Authorization':authenticatedUser}) 
     .send(newBlog)
     .expect(201)
 
@@ -146,14 +190,21 @@ test('if likes is not defined, it will have value of 0', async () => {
 })  
 
 test('if title is not defined, response is "400 Bad Request"', async () => {
+  const usersinDb = await helper.usersInDatabase()
+  const user = usersinDb[0]
+
   const newBlog = {
     author: "Robert C. Martin",
     url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
-    likes: 2
+    likes: 2,
+    userId: user.id
 }
+
+  const authenticatedUser = await authenticateUser(user)  
 
   await api
     .post('/api/blogs')
+    .set({'Authorization':authenticatedUser}) 
     .send(newBlog)
     .expect(400)
 
@@ -165,14 +216,21 @@ test('if title is not defined, response is "400 Bad Request"', async () => {
 })  
 
 test('if url is not defined, response is "400 Bad Request"', async () => {
+  const usersinDb = await helper.usersInDatabase()
+  const user = usersinDb[0]
+
   const newBlog = {
     title: "Type wars",
     author: "Robert C. Martin",
-    likes: 2
-}
+    likes: 2,
+    userId: user.id
+  } 
+
+  const authenticatedUser = await authenticateUser(user)  
 
   await api
     .post('/api/blogs')
+    .set({'Authorization':authenticatedUser}) 
     .send(newBlog)
     .expect(400)
 
@@ -183,12 +241,17 @@ test('if url is not defined, response is "400 Bad Request"', async () => {
 })  
 
 test('a blog can be deleted', async () => {
+  const usersinDb = await helper.usersInDatabase()
+  const user = usersinDb[0]
+
+  const authenticatedUser = await authenticateUser(user)  
   // const blogToDelete = helper.testBlogs[0]
   const response1 = await api.get('/api/blogs')
   const blogToDelete = response1.body[0]
 
   await api
     .delete(`/api/blogs/${blogToDelete.id}`)
+    .set({'Authorization':authenticatedUser}) 
     .expect(204)
 
   const response2 = await api.get('/api/blogs')
@@ -196,17 +259,22 @@ test('a blog can be deleted', async () => {
 })
 
 test('a blog can be updated', async () => {
+  const usersinDb = await helper.usersInDatabase()
+  const user = usersinDb[0]
+
+  const authenticatedUser = await authenticateUser(user)
   const blogToUpdate = helper.testBlogs[0]
 
   const updated= {
     title: blogToUpdate.title,
     author: blogToUpdate.author,
     url: blogToUpdate.url,
-    likes: 13
-}
+    likes: 13,
+  }
 
   await api
     .put(`/api/blogs/${blogToUpdate._id}`)
+    .set({'Authorization':authenticatedUser}) 
     .send(updated)
     .expect(200)
 
@@ -218,8 +286,6 @@ test('a blog can be updated', async () => {
 after(async () => {
   await mongoose.connection.close()
 })
-
-
 
 // const createTestUser = async () => {
 //     const saltRounds = 10
