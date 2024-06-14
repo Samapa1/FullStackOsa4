@@ -22,9 +22,7 @@ beforeEach(async () => {
   const usersinDb = await helper.usersInDatabase()
   const savedUser = usersinDb[0]
   const userId = {user: savedUser.id.toString()}
-  // console.log(userId)
-  // console.log(savedUser.id.toString())
-
+ 
   await Blog.deleteMany({})
   let blogData1 = {...helper.testBlogs[0], ...userId}
   let blogObject1 = new Blog(blogData1)
@@ -35,13 +33,6 @@ beforeEach(async () => {
   let blogData3 = {...helper.testBlogs[2], ...userId}
   let blogObject3 = new Blog(blogData3)
   await blogObject3.save()
-  // let blogObject = new Blog({...helper.testBlogs[0], ...savedUser})
-  // console.log(blogObject)
-  // await blogObject.save()
-  // blogObject = new Blog(helper.testBlogs[1])
-  // await blogObject.save()
-  // blogObject = new Blog(helper.testBlogs[2])
-  // await blogObject.save()
 })
 
 const authenticateUser =  async (user) => {
@@ -53,38 +44,17 @@ const authenticateUser =  async (user) => {
     
     const token = jwt.sign(userForToken, process.env.SECRET)
 
-
-    // if (!token) {
-    //   response.status(401).end()
-    // }
-    // else {
-      return (`Bearer ${token}`)
-    // }
+    return (`Bearer ${token}`)
 }
-
-// before(async () => {
-// // Luo user ja poista ehkä ennen
-//   await User.deleteMany({})
-//   let testUser = new User({ "username": "TiinaT",
-//     "name": "Tiina",
-//     "password": "kokeilu"
-//   })
-//   await testUser.save()
-
-// })
-
-
-// .set('Authorization', 'abc123') // Works.
-
   
-test.only('returns blogs as json', async () => {
+test('returns blogs as json', async () => {
   await api
     .get('/api/blogs')
     .expect(200)
     .expect('Content-Type', /application\/json/)
 })
 
-test.only('returns five blogs', async () => {
+test('returns five blogs', async () => {
     const response =  await api.get('/api/blogs')
     assert.strictEqual(response.body.length, helper.testBlogs.length)
 })
@@ -145,11 +115,8 @@ test('a new blog can not be added without token', async () => {
         userId: user.id
     }
 
-    // const authenticatedUser = await authenticateUser(user)
-
     await api
       .post('/api/blogs')
-      // .set({'Authorization':authenticatedUser}) 
       .send(newBlog)
       .expect(401)
       .expect('Content-Type', /application\/json/)
@@ -245,7 +212,6 @@ test('a blog can be deleted', async () => {
   const user = usersinDb[0]
 
   const authenticatedUser = await authenticateUser(user)  
-  // const blogToDelete = helper.testBlogs[0]
   const response1 = await api.get('/api/blogs')
   const blogToDelete = response1.body[0]
 
@@ -287,18 +253,3 @@ after(async () => {
   await mongoose.connection.close()
 })
 
-// const createTestUser = async () => {
-//     const saltRounds = 10
-//     // const passwordHash = await bcrypt.hash(vadelma, saltRounds)
-  
-//     const user = new User({
-//         username: "TiinaT",
-//         name: "Tiina Testaaja",
-//         passwordHash: await bcrypt.hash("vadelma", saltRounds)
-//     })
-  
-//     const savedUser = await user.save()
-    
-//     console.log(savedUser)
-//     const testUser = await User.findOne({savedUser})
-// }

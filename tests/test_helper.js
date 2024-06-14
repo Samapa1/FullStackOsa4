@@ -32,20 +32,6 @@ const testBlogs = [
     }
   ]
 
-// const testUser = async () => {
-//   const saltRounds = 10
-//   const password = "kokeilu"
-//   const passwordHash = await bcrypt.hash(password, saltRounds)
-//   const user = new User (  { 
-//     username: "ellas",
-//     name: "Ella",
-//     passwordHash
-//   })
-//   await user.save()
-//   console.log(user.toJSON())
-//   return (user.toJSON())
-// }
-
 const nonExistingId = async () => {
   const blog = new Blog({ title: 'test' })
   await blog.save()
@@ -61,7 +47,6 @@ const blogsInDatabase = async () => {
 
 const usersInDatabase = async () => {
   const users = await User.find({})
-  // console.log(JSON.stringify(users.map(user => user.toJSON())))
   return users.map(user => user.toJSON())
 }
 

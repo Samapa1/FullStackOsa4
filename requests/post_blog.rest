@@ -1,11 +1,11 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imx1bHVoIiwiaWQiOiI2NjVkYWJkMTRlYWY5YzQzMWYyY2YzNDQiLCJpYXQiOjE3MTgwMzg5NjN9.ju5-DLe5TQ-yn26PRgosZBYjMXK-GouCf1G-SpQN4Pk
+Authorization: Bearer abcdefg
 
-{"title": "NewChem",
+{"title": "Java2",
  "author": "SP",
- "url": "http://localhost:3003/api/blogs/newchem",
+ "url": "http://localhost:3003/api/blogs/java2",
  "likes": 0,
- "userId": "665dabd14eaf9c431f2cf344"
+ "userId": "666c32ff2f11bc20f1350dee"
 }
 
